@@ -19,8 +19,11 @@ function OrdersTable({ orders }) {
           </tr>
         </thead>
         <tbody>
-          {orders.map(order => (
-            <tr key={order.orderID || order.id} className="border-b border-gray-100 hover:bg-blue-50">
+          {orders.map((order, idx) => (
+            <tr
+              key={order.orderID || order.id}
+              className={`border-b border-gray-100 hover:bg-blue-50 ${idx % 2 === 0 ? 'bg-navy-accent' : 'bg-navy-main'}`}
+            >
               <td className="py-2 px-2 font-semibold">{order.orderID || order.id}</td>
               <td className="py-2 px-2">{order.orderDate ? order.orderDate.slice(0, 10) : order.date?.slice(0, 10)}</td>
               <td className="py-2 px-2">${typeof order.total === 'object' ? order.total.parsedValue?.toFixed(2) : order.total?.toFixed(2)}</td>
@@ -44,7 +47,6 @@ function App() {
   const [customers, setCustomers] = useState([])
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  // Add independent state for side nav search and pagination
   const [sideNavSearch, setSideNavSearch] = useState('')
   const [sideNavPage, setSideNavPage] = useState(1)
   const [selected, setSelected] = useState(null)
@@ -81,49 +83,22 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    loadCustomers()
-  }, [])
+  useEffect(() => { loadCustomers() }, [])
+  useEffect(() => { if (selected) { loadOrders(selected) } else { setOrders([]) } }, [selected])
 
-  // Reset orders when customer changes
-  useEffect(() => {
-    if (selected) {
-      loadOrders(selected)
-    } else {
-      setOrders([])
-    }
-  }, [selected])
-
-  // Main view filtering and pagination
-  const filtered = customers.filter(c =>
-    (c.name || c.companyName || '').toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = customers.filter(c => (c.name || c.companyName || '').toLowerCase().includes(search.toLowerCase()))
   const totalPages = Math.ceil(filtered.length / CUSTOMERS_PER_PAGE)
   const paginated = filtered.slice((page - 1) * CUSTOMERS_PER_PAGE, page * CUSTOMERS_PER_PAGE)
 
-  // Side nav filtering and pagination
-  const sideNavFiltered = customers.filter(c =>
-    (c.name || c.companyName || '').toLowerCase().includes(sideNavSearch.toLowerCase())
-  )
+  const sideNavFiltered = customers.filter(c => (c.name || c.companyName || '').toLowerCase().includes(sideNavSearch.toLowerCase()))
   const sideNavTotalPages = Math.ceil(sideNavFiltered.length / CUSTOMERS_PER_PAGE)
   const sideNavPaginated = sideNavFiltered.slice((sideNavPage - 1) * CUSTOMERS_PER_PAGE, sideNavPage * CUSTOMERS_PER_PAGE)
 
-  // Reset side nav page when search changes
-  useEffect(() => {
-    setSideNavPage(1)
-  }, [sideNavSearch])
-
-  // Reset side nav search/page when closing side nav
-  useEffect(() => {
-    if (!selected) {
-      setSideNavSearch('')
-      setSideNavPage(1)
-    }
-  }, [selected])
+  useEffect(() => { setSideNavPage(1) }, [sideNavSearch])
+  useEffect(() => { if (!selected) { setSideNavSearch(''); setSideNavPage(1) } }, [selected])
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Customers sidenav on the left when orders are open */}
       {selected && (
         <div className="h-screen bg-white border-r border-gray-200 shadow-md flex flex-col overflow-hidden z-20" style={{ width: '30vw', minWidth: 240, maxWidth: 800 }}>
           <h2 className="text-xl font-bold mb-4">Customers</h2>
@@ -142,26 +117,30 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {sideNavPaginated.map(c => (
-                  <tr
-                    key={c.id || c.customerID}
-                    className={`cursor-pointer transition-colors 
-                      ${(selected && (selected.id || selected.customerID) === (c.id || c.customerID))
-                        ? 'bg-blue-600 text-white font-bold border-l-4 border-blue-800' 
-                        : 'hover:bg-blue-100'}
-                    `}
-                    onClick={() => setSelected(c)}
-                  >
-                    <td className={`py-2 px-3 ${selected && (selected.id || selected.customerID) === (c.id || c.customerID) ? 'bg-white text-black rounded font-extrabold border border-blue-700' : ''}`}>
-                      {c.name || c.companyName}
-                    </td>
-                    <td className="py-2 px-3">{c.orderCount ?? c.orders?.length ?? '-'}</td>
-                  </tr>
-                ))}
+                {sideNavPaginated.map((c, idx) => {
+                  const isSelected = selected && (selected.id || selected.customerID) === (c.id || c.customerID);
+                  let rowClass = '';
+                  if (isSelected) {
+                    rowClass = 'bg-blue-600 text-white font-bold border-l-4 border-blue-800';
+                  } else {
+                    rowClass = 'hover:bg-blue-100 ' + (idx % 2 === 0 ? 'bg-navy-accent' : 'bg-navy-main');
+                  }
+                  return (
+                    <tr
+                      key={c.id || c.customerID}
+                      className={`cursor-pointer transition-colors border-b border-gray-100 ${rowClass}`}
+                      onClick={() => setSelected(c)}
+                    >
+                      <td className={`py-2 px-3 ${isSelected ? 'bg-blue-600 text-white rounded font-extrabold border border-blue-700' : ''}`}>
+                        {c.name || c.companyName}
+                      </td>
+                      <td className="py-2 px-3">{c.orderCount ?? c.orders?.length ?? '-'}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-          {/* Pagination in sidenav */}
           {sideNavTotalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-4">
               <button
@@ -183,7 +162,6 @@ function App() {
           )}
         </div>
       )}
-      {/* Main content: customers (right) or orders (center) */}
       <div className={`flex-1 flex ${selected ? 'justify-center' : 'justify-end'} items-center`} style={selected ? { width: '70vw' } : {}}>
         <div className={`w-full max-w-5xl bg-white rounded shadow-md p-8 ${!selected ? 'ml-auto' : ''}`}>
           {!selected ? (
@@ -207,21 +185,29 @@ function App() {
                       </tr>
                     </thead>
                     <tbody>
-                      {paginated.map(c => (
-                        <tr
-                          key={c.id || c.customerID}
-                          className={`cursor-pointer hover:bg-blue-100 transition-colors ${selected && (selected.id || selected.customerID) === (c.id || c.customerID) ? 'bg-blue-200 font-bold border-l-4 border-blue-600' : ''}`}
-                          onClick={() => setSelected(c)}
-                        >
-                          <td className="py-3 px-5 font-semibold">{c.name || c.companyName}</td>
-                          <td className="py-3 px-5">{c.orderCount ?? c.orders?.length ?? '-'}</td>
-                        </tr>
-                      ))}
+                      {paginated.map((c, idx) => {
+                        const isSelected = selected && (selected.id || selected.customerID) === (c.id || c.customerID);
+                        let rowClass = '';
+                        if (isSelected) {
+                          rowClass = 'bg-blue-200 font-bold border-l-4 border-blue-600';
+                        } else {
+                          rowClass = idx % 2 === 0 ? 'bg-navy-accent' : 'bg-navy-main';
+                        }
+                        return (
+                          <tr
+                            key={c.id || c.customerID}
+                            className={`cursor-pointer hover:bg-blue-100 transition-colors ${rowClass}`}
+                            onClick={() => setSelected(c)}
+                          >
+                            <td className="py-3 px-5 font-semibold">{c.name || c.companyName}</td>
+                            <td className="py-3 px-5">{c.orderCount ?? c.orders?.length ?? '-'}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
               )}
-              {/* Pagination nav bar at the bottom of the customers tab */}
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-6">
                   <button

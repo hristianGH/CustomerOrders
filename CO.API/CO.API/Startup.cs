@@ -4,85 +4,82 @@ using CO.API.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
 
-public class Startup
+namespace CO.API
 {
-
-    private readonly IConfiguration _configuration;
-    private readonly IWebHostEnvironment _environment;
-
-    public Startup(IConfiguration configuration, IWebHostEnvironment environment)
+    public class Startup
     {
-        _configuration = configuration;
-        _environment = environment;
-    }
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddCors(options =>
+
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
-            options.AddPolicy("AllowAll",
-                builder =>
-                {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
-                });
-        });
-
-        services.AddDbContext<ApiDbContext>(options =>
-            options.UseSqlServer(Environment.GetEnvironmentVariable(Constants.DefaultConnection) ??
-            _configuration.GetConnectionString(Constants.DefaultConnection)));
-
-        services.AddControllers();
-        services.AddMemoryCache();
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
-        // handlers here
-        services.AddTransient<ICustomerHandler, CustomerHandler>();
-    }
-    public void Configure(IApplicationBuilder app)
-    {
-        if (_environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            _configuration = configuration;
+            _environment = environment;
         }
-
-        using (IServiceScope scope = app.ApplicationServices.CreateScope())
+        public void ConfigureServices(IServiceCollection services)
         {
-            ApiDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-            ILogger<Startup> logger = scope.ServiceProvider.GetRequiredService<ILogger<Startup>>();
-
-            DbInitializer.InitializeDatabase(dbContext, logger);
-        }
-
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
-        app.UseHttpsRedirection();
-        app.UseAuthorization();
-        app.UseHttpMetrics();
-        app.UseRouting();
-
-        // Use CORS policy
-        app.UseCors("AllowAll");
-
-        app.Use(async (context, next) =>
-        {
-            string requestId = context.TraceIdentifier;
-            string ip = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-
-            using (Serilog.Context.LogContext.PushProperty("RequestId", requestId))
-            using (Serilog.Context.LogContext.PushProperty("ClientIP", ip))
+            services.AddCors(options =>
             {
-                await next.Invoke();
+                options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
+
+            // Only add ApiDbContext if it hasn't already been registered (for test override)
+            var env = services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
+            if (!env.EnvironmentName.Equals("Testing", StringComparison.OrdinalIgnoreCase))
+            {
+                services.AddDbContext<ApiDbContext>(options =>
+                    options.UseSqlServer(Environment.GetEnvironmentVariable(Constants.DefaultConnection) ??
+                    _configuration.GetConnectionString(Constants.DefaultConnection)));
             }
-        });
 
-        app.UseAuthorization();
-
-        app.UseEndpoints(endpoints =>
+            services.AddControllers();
+            services.AddMemoryCache();
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen();
+            // handlers here
+            services.AddTransient<ICustomerHandler, CustomerHandler>();
+        }
+        public void Configure(IApplicationBuilder app)
         {
-            endpoints.MapControllers();
-            endpoints.MapMetrics();
-        });
+            if (_environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
+            app.UseHttpsRedirection();
+            app.UseRouting();
+            app.UseCors("AllowAll");
+            app.UseHttpMetrics();
+
+            app.Use(async (context, next) =>
+            {
+                string requestId = context.TraceIdentifier;
+                string ip = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+
+                using (Serilog.Context.LogContext.PushProperty("RequestId", requestId))
+                using (Serilog.Context.LogContext.PushProperty("ClientIP", ip))
+                {
+                    await next.Invoke();
+                }
+            });
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapMetrics();
+            });
+        }
     }
 }
 

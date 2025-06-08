@@ -6,6 +6,18 @@ import ErrorMessage from './components/ErrorMessage'
 
 function OrdersTable({ orders }) {
   if (!orders.length) return <div className="text-gray-500">No orders found for this customer.</div>
+
+  // Calculate total sum
+  const totalSum = orders.reduce((sum, order) => {
+    let value = 0;
+    if (typeof order.total === 'object' && order.total && typeof order.total.parsedValue === 'number') {
+      value = order.total.parsedValue;
+    } else if (typeof order.total === 'number') {
+      value = order.total;
+    }
+    return sum + value;
+  }, 0);
+
   return (
     <div className="w-full h-[80vh] overflow-y-auto overflow-x-auto">
       <table className="w-full bg-white border border-gray-300 text-base">
@@ -39,6 +51,9 @@ function OrdersTable({ orders }) {
           ))}
         </tbody>
       </table>
+      <div className="flex justify-end mt-4 pr-4">
+        <span className="text-lg font-bold text-white bg-navy-accent px-4 py-2 rounded shadow">Total Sum: ${totalSum.toFixed(2)}</span>
+      </div>
     </div>
   )
 }

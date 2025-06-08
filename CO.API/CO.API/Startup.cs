@@ -1,4 +1,5 @@
 ﻿using CO.API.Data;
+using CO.API.Handlers;
 using CO.API.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
@@ -35,7 +36,8 @@ public class Startup
         services.AddMemoryCache();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
-
+        // handlers here
+        services.AddTransient<ICustomerHandler, CustomerHandler>();
     }
     public void Configure(IApplicationBuilder app)
     {

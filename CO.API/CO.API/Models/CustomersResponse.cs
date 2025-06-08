@@ -2,7 +2,7 @@
 {
     public class CustomersResponse
     {
-        public string CustomerID { get; set; }
-        public string CompanyName { get; set; }
+        public string? CustomerID { get; set; }
+        public string? CompanyName { get; set; }
     }
 }

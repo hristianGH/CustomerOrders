@@ -17,6 +17,13 @@ namespace CO.API.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Customer>()
+                .HasKey(c => c.CustomerID);
+
+            // Need to manual set the table name as it has space in it
+            modelBuilder.Entity<OrderDetail>()
+               .ToTable("Order Details");
+
             modelBuilder.Entity<OrderDetail>()
                 .HasKey(od => new { od.OrderID, od.ProductID });
 

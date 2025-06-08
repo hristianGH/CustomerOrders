@@ -8,6 +8,6 @@
         public DateTime? ShippedDate { get; set; }
         public decimal Total { get; set; }
         public int ProductCount { get; set; }
-        public string Warning { get; set; }
+        public string Warning { get; set; } = null!;
     }
 }

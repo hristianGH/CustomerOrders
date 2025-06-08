@@ -8,7 +8,7 @@ namespace CO.API.Controllers
     public class CustomersController(ILogger<CustomersController> logger, ICustomerHandler customerHandler) : ControllerBase
     {
 
-        [HttpGet("/customers")]
+        [HttpGet()]
         public async Task<IActionResult> GetClients()
         {
             try
@@ -27,7 +27,7 @@ namespace CO.API.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("customer/{id}")]
         public async Task<IActionResult> GetClientById(string id)
         {
             try
@@ -51,7 +51,7 @@ namespace CO.API.Controllers
             }
         }
 
-        [HttpGet("{id}/orders")]
+        [HttpGet("customer/{id}/orders")]
         public async Task<IActionResult> GetClientOrdersById(string id)
         {
             try

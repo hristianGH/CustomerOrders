@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 :root {
+  --color-navy-main: #0a0d1a; /* ultra dark navy for main background */
+  --color-navy-accent: #181c2a; /* very dark navy for accents */
+  --color-blue-soft: #6d7bbd; /* muted, darker blue for accents */
+  --color-pink-muted: #b88a99; /* muted, darker pink for accents */
+  --color-gray-bg: #181c2a; /* match accent for backgrounds */
+  --color-white: #fff;
+  --color-text-main: #f4f4f6; /* light gray/white for main text on dark bg */
+  --color-text-invert: #181c2a; /* dark navy for text on light bg */
+
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -19,11 +28,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--color-blue-soft);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--color-pink-muted);
 }
 
 body {
@@ -32,6 +41,8 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--color-navy-main);
+  color: var(--color-text-main);
 }
 
 h1 {
@@ -46,27 +57,57 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--color-navy-accent);
+  color: var(--color-text-main);
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--color-blue-soft);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+input, button, select, textarea {
+  color: var(--color-text-main);
+  background: var(--color-navy-accent);
+}
+
+#root {
+  background: var(--color-navy-main);
+  color: var(--color-text-main);
+}
+
+.bg-navy-main { background-color: var(--color-navy-main) !important; }
+.bg-navy-accent { background-color: var(--color-navy-accent) !important; }
+.bg-blue-soft { background-color: var(--color-blue-soft) !important; }
+.bg-gray-soft { background-color: var(--color-pink-muted) !important; }
+.bg-gray-bg { background-color: var(--color-navy-accent) !important; }
+.bg-white { background-color: var(--color-navy-accent) !important; }
+
+.text-navy-main { color: var(--color-navy-main) !important; }
+.text-navy-accent { color: var(--color-navy-accent) !important; }
+.text-blue-soft { color: var(--color-blue-soft) !important; }
+.text-gray-soft { color: var(--color-pink-muted) !important; }
+.text-white { color: var(--color-white) !important; }
+
+.border-navy-main { border-color: var(--color-navy-main) !important; }
+.border-navy-accent { border-color: var(--color-navy-accent) !important; }
+.border-blue-soft { border-color: var(--color-blue-soft) !important; }
+.border-gray-soft { border-color: var(--color-pink-muted) !important; }
+
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: var(--color-navy-main);
+    background-color: var(--color-gray-bg);
   }
   a:hover {
-    color: #747bff;
+    color: var(--color-blue-soft);
   }
   button {
-    background-color: #f9f9f9;
+    background-color: var(--color-gray-bg);
+    color: var(--color-navy-main);
   }
 }

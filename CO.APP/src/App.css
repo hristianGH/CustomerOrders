@@ -1,8 +1,16 @@
+/* Professional suit-inspired color palette */
+:root {
+  --color-navy-main: #232946;
+  --color-navy-accent: #121629;
+}
+
 #root {
   width: 90vw;
   max-width: 100vw;
   margin: 0 auto;
   padding: 0;
+  background: var(--color-navy-main);
+  color: var(--color-text-main);
 }
 
 .logo {
@@ -12,10 +20,8 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
 @keyframes logo-spin {
@@ -35,8 +41,12 @@
 
 .card {
   padding: 2em;
+  background: var(--color-navy-accent);
+  color: var(--color-text-main);
+  border-radius: 1em;
+  box-shadow: 0 2px 8px 0 rgba(35,41,70,0.08);
 }
 
 .read-the-docs {
-  color: #888;
+  color: var(--color-blue-soft);
 }

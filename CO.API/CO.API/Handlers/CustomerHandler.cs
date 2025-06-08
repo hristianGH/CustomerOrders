@@ -18,7 +18,8 @@ namespace CO.API.Handlers
                     .Select(c => new CustomersResponse
                     {
                         CustomerID = c.CustomerID,
-                        CompanyName = c.CompanyName
+                        CompanyName = c.CompanyName,
+                        NumberOfOrders = c.Orders.Count()
                     })
                     .ToListAsync();
             }

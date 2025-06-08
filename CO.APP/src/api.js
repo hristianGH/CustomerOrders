@@ -6,10 +6,10 @@ export async function fetchCustomers() {
   const res = await fetch(`${API_BASE}/customers`);
   if (!res.ok) throw new Error('Failed to fetch customers');
   const data = await res.json();
-  // Map API fields to UI fields
   return data.map(c => ({
     id: c.customerID || c.id,
     name: c.companyName || c.name,
+    orderCount: c.numberOfOrders ?? c.orderCount ?? c.orders?.length,
     ...c
   }));
 }

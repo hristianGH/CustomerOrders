@@ -37,5 +37,12 @@ namespace CO.API.Test
             Assert.Equal(2, result.Count());
         }
 
+        [Fact]
+        public async Task GetCustomersAsync_ReturnsEmptyList_WhenNoCustomersExist()
+        {
+            IEnumerable<Models.CustomersResponse> result = await _handler.GetAllCustomersAsync();
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
     }
 }

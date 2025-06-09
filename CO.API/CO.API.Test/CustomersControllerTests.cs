@@ -37,5 +37,15 @@ namespace CO.API.Test
             List<CustomersResponse> returnedCustomers = Assert.IsType<List<CustomersResponse>>(okResult.Value);
             Assert.Equal(2, returnedCustomers.Count);
         }
+
+        [Fact]
+        public async Task GetCustomers_ReturnsEmptyList_WhenHandlerReturnsEmptyList()
+        {
+            _mockHandler.Setup(h => h.GetAllCustomersAsync()).ReturnsAsync([]);
+
+            IActionResult result = await _controller.GetClients();
+
+            OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        }
     }
 }
